@@ -68,11 +68,4 @@ class Order extends BaseController
 //        var_dump($res);
 
     }
-    public function test($id)
-    {
-       echo 'test';exit;
-       $a=new OrderProduct();
-       $res=$a->getProductsByOrderId($id);
-       return $res;
-    }
 }

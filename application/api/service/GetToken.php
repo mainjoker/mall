@@ -13,10 +13,11 @@ use app\api\model\User;
 use app\role\Role;
 use app\exception\CacheException;
 use app\exception\ErrorCodeException;
+use think\facade\Cache;
 use think\facade\Cookie;
 
 
-class GetToken
+class GetToken extends BaseToken
 {
     private $appId;
     private $appSecret;
@@ -51,24 +52,6 @@ class GetToken
 
     }
 
-    //获取签名字符串
-    protected function createNonceStr($length = 16)
-    {
-        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        $str = "";
-        for ($i = 0; $i < $length; $i++) {
-            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-        }
-        return $str;
-    }
-
-    //生成基于当前时间的token
-    public function makeToken($len){
-        $nonceStr=$this->createNonceStr($len);
-        $timestamp=$_SERVER['REQUEST_TIME_FLOAT'];
-        $salt=config('wx.salt');
-        return md5($nonceStr.$timestamp.$salt);
-    }
 
     //添加新用户
     private function newUser($openid)

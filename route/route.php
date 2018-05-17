@@ -18,14 +18,26 @@ Route::get('banner/:id', 'index/banner/getBanner');
 Route::get('test', 'index/index/test');
 
 
+//token uses
 Route::post('api/token/user', 'api/Token/getToken');
 Route::get('api/token/test', 'api/Token/test');
 Route::get('api/token/token', 'api/Token/checkToken');
 
-//下单接口
+//token app
+Route::post('api/token/app', 'api/Token/getAppToken');
+
+//订单接口
 Route::post('api/order', 'api/Order/placeOrder');
+//订单列表
+Route::get('api/order/user', 'api/Order/getAllOrders');
+Route::get('api/order/info', 'api/Order/getProductsInfo');
+Route::get('api/order/products/:id', 'api/Order/getProductsInfo');
+Route::get('api/order/:id', 'api/Order/getOrderInfoById');
+
 //添加地址接口
 Route::post('api/address', 'api/address/addAddress');
+//获取用户地址列表接口
+Route::post('api/address/user', 'api/address/getAddress');
 //获取Banner接口
 Route::get('api/banner/:id', 'api/banner/getBanner');
 
@@ -49,6 +61,17 @@ Route::get('api/category/:id','api/category/getProductsByCate');
 
 //product接口
 Route::get('api/product/:id','api/product/getProductById');
+
+
+//pay接口
+Route::post('api/pay/payOrder','api/pay/payOrder');
+
+
+//test
+Route::get('api/test/token','api/test/token');
+Route::post('api/test/form','api/test/form');
+
+
 
 
 

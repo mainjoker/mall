@@ -8,7 +8,6 @@
 
 namespace app\api\model;
 
-ues think\model;
 class UserToken
 {
 

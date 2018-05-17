@@ -9,17 +9,17 @@
 namespace app\api\controller;
 
 
-use app\api\model\Product;
-use app\api\model\User;
-use app\api\model\UserAddress;
+use app\api\model\ThirdApp;
 use app\api\service\GetToken;
+use app\api\validate\AppToken;
 use app\api\validate\UserToken;
-use extend\WxPay\WxPayApi;
-use think\Cache;
+use app\api\service\AppToken as appService;
+use think\facade\Env;
 use think\facade\Request;
 
 class Token extends BaseController
 {
+    //userToken
     public function getToken($code = '')
     {
         //判断code是否存在
@@ -42,12 +42,20 @@ class Token extends BaseController
         }
         return json($res);
     }
+    //appToken
+    public function getAppToken($name='',$pwd=''){
+        (new AppToken())->goCheck();
+        $app=new appService();
+        $token=$app->get($name,$pwd);
+        return json(['token'=>$token]);
+    }
 
     public function test()
     {
-        $token=\think\facade\Cache::get('e696a81cccb624fa1c7e82a3f94655bb');
-        $token1=Cache('e696a81cccb624fa1c7e82a3f94655bb');
+        $name=request()->get('name');
+        $pwd=request()->get('password');
+        $model=new ThirdApp();
+        $token=$model->checkAppToken($name,$pwd);
         var_dump($token);
-        var_dump($token1);
     }
 }

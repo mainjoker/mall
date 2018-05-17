@@ -11,6 +11,7 @@ namespace app\api\service;
 
 
 use app\api\model\Product;
+use app\api\model\UserAddress;
 use app\exception\ParamsException;
 use think\Db;
 use think\Exception;
@@ -43,11 +44,27 @@ class Order
             ]);
         }
     }
+    //其他验证订单调用入口
+    public function checkOrder($uid,$oProducts){
+        //初始化数据
+        $this->oProducts=$oProducts;
+        $this->uid=$uid;
+        //检查订单状态
+        $status=$this->getOrderStatus();
+        $this->products=$this->getProducts();
+        if ($status){
+            //验证通过
+            return true;
+        }else{
+            return false;
+        }
+    }
     //正式生成订单
     private function placeOrder(){
         $data=$this->preOrder();
         $order=new orderModel();
         $orderProduct=new OrderProduct();
+        //开启事务
         try{
             Db::startTrans();
             $order->allowField(true)->save($data);
@@ -55,6 +72,11 @@ class Order
             $data1=$this->oProducts;
             for($i=0;$i<count($this->oProducts);$i++){
                 $data1[$i]['order_id']=$order_id;
+
+                /*新添加的order_product字段*/
+                $data1[$i]['price']=$this->products[$i]['price'];
+                $data1[$i]['name']=$this->products[$i]['name'];
+                $data1[$i]['main_img_url']=$this->products[$i]['main_img_url'];
             }
             $orderProduct->saveAll($data1);
             Db::commit();
@@ -87,8 +109,12 @@ class Order
         if (count($this->oProducts)>1){
             $data['snap_name'].='等';
         }
-        //地址信息 还没做 先填默认
-        $data['snap_address']='福建省厦门市软件园三期';//封面名称
+        //地址信息
+        //根据uid获取默认地址
+        $uid=$this->uid;
+        $res=UserAddress::getUserAddress($uid);
+        $address=$res->province.$res->city.$res->country.$res->detail;
+        $data['snap_address']=$address;
         return $data;
     }
     private function getOrderStatus(){
@@ -131,7 +157,10 @@ class Order
         $stock=$proInfo['stock'];
         if ($stock<$oCount){
             throw new ParamsException([
-                'msg'=>'商品id为'.$pid.'的商品库存不足',
+//                'msg'=>'商品id为'.$pid.'的商品库存不足',
+                'msg'=>'商品'.$proInfo['name'].'的库存不足',
+                'err_code'=>30030,
+
             ]);
         }else{
             $this->pInfo[$i]['name']=$proInfo['name'];

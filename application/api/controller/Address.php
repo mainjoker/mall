@@ -9,12 +9,15 @@
 namespace app\api\controller;
 
 
+use app\api\model\User;
 use app\api\model\UserAddress;
+use app\exception\ParamsException;
 
 class Address extends BaseController
 {
     protected $beforeActionList=[
-        'checkUserScope'=>['only'=>'addAddress'],
+        'checkUserScope'=>['only'=>'addAddress,getAddress'],
+        //'checkUserScope',
     ];
     //用户添加新地址
     public function addAddress(){
@@ -22,8 +25,23 @@ class Address extends BaseController
         $post=input('post.');
         $post['user_id']=$uid;
         $address=new UserAddress();
-        $address->allowField(true)->save($post);
-        return $address->id;
+        if($address->beforeAdd($post,$uid)){
+            $address->allowField(true)->save($post);
+            return json(['id'=>$address->id]);
+        }else{
+            throw new ParamsException([
+                'msg'=>'新增地址失败',
+            ]);
+        }
+    }
+    //获取用户默认地址
+    public function getAddress(){
+        $uid=Token::getVarFromToken('uid');
+        $res=UserAddress::getUserAddress($uid);
+        return json($res);
+    }
+    public function test(){
+
     }
 
 }
